@@ -1,0 +1,59 @@
+
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- task: CmdLine@2
+  inputs:
+    script: |
+      set
+
+- task: UseDotNet@2
+  inputs:
+    version: '6.0.x'
+    performMultiLevelLookup: true
+    includePreviewVersions: true
+
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: VSBuild@1
+  inputs:
+    solution: '$(solution)'
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+
+# - task: VSTest@2
+#   inputs:
+#     platform: '$(buildPlatform)'
+#     configuration: '$(buildConfiguration)'
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Pipeline.Workspace)'
+    artifact: 'drop'
+    publishLocation: 'pipeline'
+
+- task: AzureRmWebAppDeployment@4
+  inputs:
+    ConnectionType: 'AzureRM'
+    azureSubscription: 'at-devops-cs-appsvc-demo-con'
+    appType: 'webApp'
+    WebAppName: 'atdevopscsappsvcdemo'
+    deployToSlotOrASE: true
+    ResourceGroupName: 'at-devops-cs-appsvc-demo-rg'
+    SlotName: 'stg'
+    Package: '$(Build.StagingDirectory)/**/*.zip'
+

@@ -1,0 +1,61 @@
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+ - stage: DeployDevStage
+    displayName: 'Deploy App to Dev Slot'
+    jobs:
+      - job:  DeployApp
+        displayName: 'Deploy App'
+        steps:
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            buildType: 'current'
+            artifactName: 'drop'
+            targetPath: '$(System.DefaultWorkingDirectory)'
+- task: AzureRmWebAppDeployment@4
+    inputs:
+        ConnectionType: 'AzureRM'
+        azureSubscription: 'Fabrikam Azure Subscription - PartsUnlimited'
+        appType: 'webApp'
+        WebAppName: 'partsunlimited'
+        deployToSlotOrASE: true
+        ResourceGroupName: 'rgPartsUnlimited'
+        SlotName: 'Dev'
+        packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
+
+  - stage: DeployStagingStage
+    displayName: 'Deploy App to Staging Slot'
+    dependsOn: DeployDevStage
+    jobs:
+      - job:  DeployApp
+        displayName: 'Deploy App'
+        steps:
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            buildType: 'current'
+            artifactName: 'drop'
+            targetPath: '$(System.DefaultWorkingDirectory)'
+        - task: AzureRmWebAppDeployment@4
+          inputs:
+            appType: webApp
+            ConnectionType: AzureRM            
+            ConnectedServiceName: 'Fabrikam Azure Subscription - PartsUnlimited'
+            ResourceGroupName: 'rgPartsUnlimited'
+            WebAppName: 'partsunlimited'
+            Package: '$(System.DefaultWorkingDirectory)/**/*.zip'
+            deployToSlotOrASE: true
+            SlotName: 'staging'
+
+
+
+steps:
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: $(System.DefaultWorkingDirectory)/bin/WebApp
+    artifactName: WebApp

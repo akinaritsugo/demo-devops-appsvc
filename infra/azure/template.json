@@ -1,0 +1,2451 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "serverfarms_at_devops_demo_asp_name": {
+            "defaultValue": "at-devops-demo-asp",
+            "type": "String"
+        },
+        "sites_at_devops_demo_cs_webapp_appsvc_name": {
+            "defaultValue": "at-devops-demo-cs-webapp-appsvc",
+            "type": "String"
+        },
+        "networkInterfaces_at_devops_demo_agent_nic_name": {
+            "defaultValue": "at-devops-demo-agent-nic",
+            "type": "String"
+        },
+        "virtualMachines_at_devops_demo_agent_vm_name": {
+            "defaultValue": "at-devops-demo-agent-vm",
+            "type": "String"
+        },
+        "applicationGateways_at_devops_demo_appgw_name": {
+            "defaultValue": "at-devops-demo-appgw",
+            "type": "String"
+        },
+        "virtualNetworks_at_devops_demo_main_vnet_name": {
+            "defaultValue": "at-devops-demo-main-vnet",
+            "type": "String"
+        },
+        "publicIPAddresses_at_devops_demo_appgw_ip_name": {
+            "defaultValue": "at-devops-demo-appgw-ip",
+            "type": "String"
+        },
+        "publicIPAddresses_at_devops_demo_agent_vm_ip_name": {
+            "defaultValue": "at-devops-demo-agent-vm-ip",
+            "type": "String"
+        },
+        "networkSecurityGroups_at_devops_demo_data_nsg_name": {
+            "defaultValue": "at-devops-demo-data-nsg",
+            "type": "String"
+        },
+        "privateDnsZones_privatelink_azurewebsites_net_name": {
+            "defaultValue": "privatelink.azurewebsites.net",
+            "type": "String"
+        },
+        "networkSecurityGroups_at_devops_demo_bastion_nsg_name": {
+            "defaultValue": "at-devops-demo-bastion-nsg",
+            "type": "String"
+        },
+        "networkSecurityGroups_at_devops_demo_cluster_nsg_name": {
+            "defaultValue": "at-devops-demo-cluster-nsg",
+            "type": "String"
+        },
+        "networkSecurityGroups_at_devops_demo_gateway_nsg_name": {
+            "defaultValue": "at-devops-demo-gateway-nsg",
+            "type": "String"
+        },
+        "networkSecurityGroups_at_devops_demo_business_nsg_name": {
+            "defaultValue": "at-devops-demo-business-nsg",
+            "type": "String"
+        },
+        "privateEndpoints_at_devops_demo_cs_webapp_appsvc_pep_name": {
+            "defaultValue": "at-devops-demo-cs-webapp-appsvc-pep",
+            "type": "String"
+        },
+        "schedules_shutdown_computevm_at_devops_demo_agent_vm_name": {
+            "defaultValue": "shutdown-computevm-at-devops-demo-agent-vm",
+            "type": "String"
+        },
+        "privateEndpoints_at_devops_demo_cs_webapp_appsvc_stage_pep_name": {
+            "defaultValue": "at-devops-demo-cs-webapp-appsvc-stage-pep",
+            "type": "String"
+        },
+        "networkInterfaces_at_devops_demo_cs_webapp_appsvc_pep_nic_4a994e88_ca64_49e1_9a9b_a3e572392d5c_name": {
+            "defaultValue": "at-devops-demo-cs-webapp-appsvc-pep-nic",
+            "type": "String"
+        },
+        "networkInterfaces_at_devops_demo_cs_webapp_appsvc_stage_pep_nic_443ffe73_9e45_40dc_94c1_cfd9a0d2361f_name": {
+            "defaultValue": "at-devops-demo-cs-webapp-appsvc-stage-pep-nic",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name')]",
+            "location": "japaneast",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "AllowHttpsInbound",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "Internet",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 110,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowAzureLoadBalancerInbound",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "AzureLoadBalancer",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 130,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowGetSessionInformation",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "Internet",
+                            "access": "Allow",
+                            "priority": 140,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowAzureCloudOutbound",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "AzureCloud",
+                            "access": "Allow",
+                            "priority": 120,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowBastionCommunicationOutbound",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 130,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [
+                                "5701",
+                                "80"
+                            ],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowGatewayManagerInbound",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "GatewayManager",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 120,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowSshRdpOutbound",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 110,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [
+                                "22",
+                                "3389"
+                            ],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowBastionHostCommunicationInbound",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 140,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [
+                                "5701",
+                                "8080"
+                            ],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('networkSecurityGroups_at_devops_demo_business_nsg_name')]",
+            "location": "japaneast",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "SecurityCenter-JITRule_-7568186_9C15919364A0485DA5CC85FCB9546D15",
+                        "properties": {
+                            "description": "ASC JIT Network Access rule for policy 'default' of VM 'at-devops-demo-agent-vm'.",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "10.0.2.4",
+                            "access": "Deny",
+                            "priority": 4096,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('networkSecurityGroups_at_devops_demo_cluster_nsg_name')]",
+            "location": "japaneast",
+            "properties": {
+                "securityRules": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('networkSecurityGroups_at_devops_demo_data_nsg_name')]",
+            "location": "japaneast",
+            "properties": {
+                "securityRules": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('networkSecurityGroups_at_devops_demo_gateway_nsg_name')]",
+            "location": "japaneast",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "AllowHttpInbound",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowHttpsInbound",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 110,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowGatewayManagerInbound",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "65200-65535",
+                            "sourceAddressPrefix": "GatewayManager",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 120,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowAzureLoadBalancerInbound",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "AzureLoadBalancer",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 130,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones",
+            "apiVersion": "2018-09-01",
+            "name": "[parameters('privateDnsZones_privatelink_azurewebsites_net_name')]",
+            "location": "global",
+            "properties": {
+                "maxNumberOfRecordSets": 25000,
+                "maxNumberOfVirtualNetworkLinks": 1000,
+                "maxNumberOfVirtualNetworkLinksWithRegistration": 100,
+                "numberOfRecordSets": 5,
+                "numberOfVirtualNetworkLinks": 1,
+                "numberOfVirtualNetworkLinksWithRegistration": 0,
+                "provisioningState": "Succeeded"
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('publicIPAddresses_at_devops_demo_agent_vm_ip_name')]",
+            "location": "japaneast",
+            "sku": {
+                "name": "Basic",
+                "tier": "Regional"
+            },
+            "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4,
+                "ipTags": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('publicIPAddresses_at_devops_demo_appgw_ip_name')]",
+            "location": "japaneast",
+            "sku": {
+                "name": "Basic",
+                "tier": "Regional"
+            },
+            "properties": {
+                "ipAddress": "20.89.16.68",
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4,
+                "dnsSettings": {
+                    "domainNameLabel": "at-devops-demo-appgw",
+                    "fqdn": "at-devops-demo-appgw.japaneast.cloudapp.azure.com"
+                },
+                "ipTags": []
+            }
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2021-03-01",
+            "name": "[parameters('serverfarms_at_devops_demo_asp_name')]",
+            "location": "Japan East",
+            "sku": {
+                "name": "S1",
+                "tier": "Standard",
+                "size": "S1",
+                "family": "S",
+                "capacity": 1
+            },
+            "kind": "app",
+            "properties": {
+                "perSiteScaling": false,
+                "elasticScaleEnabled": false,
+                "maximumElasticWorkerCount": 1,
+                "isSpot": false,
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "targetWorkerCount": 0,
+                "targetWorkerSizeId": 0,
+                "zoneRedundant": false
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2022-03-01",
+            "name": "[parameters('virtualMachines_at_devops_demo_agent_vm_name')]",
+            "location": "japaneast",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_at_devops_demo_agent_nic_name'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B2s"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2019-datacenter-gensecond",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_at_devops_demo_agent_vm_name'), '_disk1_09d581de2d8346479fb28fbca0d6f05f')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "id": "[resourceId('Microsoft.Compute/disks', concat(parameters('virtualMachines_at_devops_demo_agent_vm_name'), '_disk1_09d581de2d8346479fb28fbca0d6f05f'))]"
+                        },
+                        "deleteOption": "Delete"
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "at-devops-demo-",
+                    "adminUsername": "azureuser",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true,
+                        "patchSettings": {
+                            "patchMode": "AutomaticByOS",
+                            "assessmentMode": "ImageDefault",
+                            "enableHotpatching": false
+                        }
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true,
+                    "requireGuestProvisionSignal": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_at_devops_demo_agent_nic_name'))]",
+                            "properties": {
+                                "deleteOption": "Delete"
+                            }
+                        }
+                    ]
+                },
+                "licenseType": "Windows_Server"
+            }
+        },
+        {
+            "type": "microsoft.devtestlab/schedules",
+            "apiVersion": "2018-09-15",
+            "name": "[parameters('schedules_shutdown_computevm_at_devops_demo_agent_vm_name')]",
+            "location": "japaneast",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_at_devops_demo_agent_vm_name'))]"
+            ],
+            "properties": {
+                "status": "Enabled",
+                "taskType": "ComputeVmShutdownTask",
+                "dailyRecurrence": {
+                    "time": "1900"
+                },
+                "timeZoneId": "UTC",
+                "notificationSettings": {
+                    "status": "Disabled",
+                    "timeInMinutes": 30,
+                    "notificationLocale": "ja"
+                },
+                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_at_devops_demo_agent_vm_name'))]"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('networkInterfaces_at_devops_demo_cs_webapp_appsvc_pep_nic_4a994e88_ca64_49e1_9a9b_a3e572392d5c_name')]",
+            "location": "japaneast",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'business-subnet')]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "privateEndpointIpConfig.ce04efcb-8390-4319-a4d4-7c26cce43b41",
+                        "properties": {
+                            "privateIPAddress": "10.0.2.5",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'business-subnet')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('networkInterfaces_at_devops_demo_cs_webapp_appsvc_stage_pep_nic_443ffe73_9e45_40dc_94c1_cfd9a0d2361f_name')]",
+            "location": "japaneast",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'business-subnet')]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "privateEndpointIpConfig.879b5ed9-ce30-4885-8ece-e650705b8062",
+                        "properties": {
+                            "privateIPAddress": "10.0.2.6",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'business-subnet')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name'), '/AllowAzureCloudOutbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name'))]"
+            ],
+            "properties": {
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "destinationPortRange": "443",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "AzureCloud",
+                "access": "Allow",
+                "priority": 120,
+                "direction": "Outbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name'), '/AllowAzureLoadBalancerInbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name'))]"
+            ],
+            "properties": {
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "destinationPortRange": "443",
+                "sourceAddressPrefix": "AzureLoadBalancer",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 130,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('networkSecurityGroups_at_devops_demo_gateway_nsg_name'), '/AllowAzureLoadBalancerInbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_gateway_nsg_name'))]"
+            ],
+            "properties": {
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "AzureLoadBalancer",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 130,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name'), '/AllowBastionCommunicationOutbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name'))]"
+            ],
+            "properties": {
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "destinationAddressPrefix": "VirtualNetwork",
+                "access": "Allow",
+                "priority": 130,
+                "direction": "Outbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [
+                    "5701",
+                    "80"
+                ],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name'), '/AllowBastionHostCommunicationInbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name'))]"
+            ],
+            "properties": {
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "destinationAddressPrefix": "VirtualNetwork",
+                "access": "Allow",
+                "priority": 140,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [
+                    "5701",
+                    "8080"
+                ],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name'), '/AllowGatewayManagerInbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name'))]"
+            ],
+            "properties": {
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "destinationPortRange": "443",
+                "sourceAddressPrefix": "GatewayManager",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 120,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('networkSecurityGroups_at_devops_demo_gateway_nsg_name'), '/AllowGatewayManagerInbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_gateway_nsg_name'))]"
+            ],
+            "properties": {
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "65200-65535",
+                "sourceAddressPrefix": "GatewayManager",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 120,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name'), '/AllowGetSessionInformation')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name'))]"
+            ],
+            "properties": {
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "80",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "Internet",
+                "access": "Allow",
+                "priority": 140,
+                "direction": "Outbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('networkSecurityGroups_at_devops_demo_gateway_nsg_name'), '/AllowHttpInbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_gateway_nsg_name'))]"
+            ],
+            "properties": {
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "80",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 100,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name'), '/AllowHttpsInbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name'))]"
+            ],
+            "properties": {
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "destinationPortRange": "443",
+                "sourceAddressPrefix": "Internet",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 110,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('networkSecurityGroups_at_devops_demo_gateway_nsg_name'), '/AllowHttpsInbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_gateway_nsg_name'))]"
+            ],
+            "properties": {
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "443",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 110,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name'), '/AllowSshRdpOutbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name'))]"
+            ],
+            "properties": {
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "VirtualNetwork",
+                "access": "Allow",
+                "priority": 110,
+                "direction": "Outbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [
+                    "22",
+                    "3389"
+                ],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('networkSecurityGroups_at_devops_demo_business_nsg_name'), '/SecurityCenter-JITRule_-7568186_9C15919364A0485DA5CC85FCB9546D15')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_business_nsg_name'))]"
+            ],
+            "properties": {
+                "description": "ASC JIT Network Access rule for policy 'default' of VM 'at-devops-demo-agent-vm'.",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3389",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "10.0.2.4",
+                "access": "Deny",
+                "priority": 4096,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/A",
+            "apiVersion": "2018-09-01",
+            "name": "[concat(parameters('privateDnsZones_privatelink_azurewebsites_net_name'), '/at-devops-demo-cs-webapp-appsvc')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_privatelink_azurewebsites_net_name'))]"
+            ],
+            "properties": {
+                "metadata": {
+                    "creator": "created by private endpoint at-devops-demo-cs-webapp-appsvc-pep with resource guid 91998f29-034b-4401-82da-21fb2ef990e4"
+                },
+                "ttl": 10,
+                "aRecords": [
+                    {
+                        "ipv4Address": "10.0.2.5"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/A",
+            "apiVersion": "2018-09-01",
+            "name": "[concat(parameters('privateDnsZones_privatelink_azurewebsites_net_name'), '/at-devops-demo-cs-webapp-appsvc.scm')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_privatelink_azurewebsites_net_name'))]"
+            ],
+            "properties": {
+                "metadata": {
+                    "creator": "created by private endpoint at-devops-demo-cs-webapp-appsvc-pep with resource guid 91998f29-034b-4401-82da-21fb2ef990e4"
+                },
+                "ttl": 10,
+                "aRecords": [
+                    {
+                        "ipv4Address": "10.0.2.5"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/A",
+            "apiVersion": "2018-09-01",
+            "name": "[concat(parameters('privateDnsZones_privatelink_azurewebsites_net_name'), '/at-devops-demo-cs-webapp-appsvc-stage')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_privatelink_azurewebsites_net_name'))]"
+            ],
+            "properties": {
+                "metadata": {
+                    "creator": "created by private endpoint at-devops-demo-cs-webapp-appsvc-stage-pep with resource guid b5c681c5-e7f1-4122-aedf-2552df2b1b9a"
+                },
+                "ttl": 10,
+                "aRecords": [
+                    {
+                        "ipv4Address": "10.0.2.6"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/A",
+            "apiVersion": "2018-09-01",
+            "name": "[concat(parameters('privateDnsZones_privatelink_azurewebsites_net_name'), '/at-devops-demo-cs-webapp-appsvc-stage.scm')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_privatelink_azurewebsites_net_name'))]"
+            ],
+            "properties": {
+                "metadata": {
+                    "creator": "created by private endpoint at-devops-demo-cs-webapp-appsvc-stage-pep with resource guid b5c681c5-e7f1-4122-aedf-2552df2b1b9a"
+                },
+                "ttl": 10,
+                "aRecords": [
+                    {
+                        "ipv4Address": "10.0.2.6"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/SOA",
+            "apiVersion": "2018-09-01",
+            "name": "[concat(parameters('privateDnsZones_privatelink_azurewebsites_net_name'), '/@')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_privatelink_azurewebsites_net_name'))]"
+            ],
+            "properties": {
+                "ttl": 3600,
+                "soaRecord": {
+                    "email": "azureprivatedns-host.microsoft.com",
+                    "expireTime": 2419200,
+                    "host": "azureprivatedns.net",
+                    "minimumTtl": 10,
+                    "refreshTime": 3600,
+                    "retryTime": 300,
+                    "serialNumber": 1
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('virtualNetworks_at_devops_demo_main_vnet_name'), '/AzureFirewallSubnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_at_devops_demo_main_vnet_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.0.4.0/26",
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Enabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('virtualNetworks_at_devops_demo_main_vnet_name'), '/gateway-subnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_at_devops_demo_main_vnet_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.0.3.0/24",
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Enabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+            "apiVersion": "2021-03-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/ftp')]",
+            "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ],
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+            "apiVersion": "2021-03-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/scm')]",
+            "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ],
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/config",
+            "apiVersion": "2021-03-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/web')]",
+            "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ],
+            "properties": {
+                "numberOfWorkers": 1,
+                "defaultDocuments": [
+                    "Default.htm",
+                    "Default.html",
+                    "Default.asp",
+                    "index.htm",
+                    "index.html",
+                    "iisstart.htm",
+                    "default.aspx",
+                    "index.php",
+                    "hostingstart.html"
+                ],
+                "netFrameworkVersion": "v6.0",
+                "requestTracingEnabled": false,
+                "remoteDebuggingEnabled": false,
+                "remoteDebuggingVersion": "VS2019",
+                "httpLoggingEnabled": false,
+                "acrUseManagedIdentityCreds": false,
+                "logsDirectorySizeLimit": 35,
+                "detailedErrorLoggingEnabled": false,
+                "publishingUsername": "$at-devops-demo-cs-webapp-appsvc",
+                "scmType": "VSTSRM",
+                "use32BitWorkerProcess": true,
+                "webSocketsEnabled": false,
+                "alwaysOn": true,
+                "managedPipelineMode": "Integrated",
+                "virtualApplications": [
+                    {
+                        "virtualPath": "/",
+                        "physicalPath": "site\\wwwroot",
+                        "preloadEnabled": true
+                    }
+                ],
+                "loadBalancing": "LeastRequests",
+                "experiments": {
+                    "rampUpRules": []
+                },
+                "autoHealEnabled": false,
+                "vnetName": "de02a3dd-b5bd-44f5-ba93-b2dd0d4e256c_data-subnet",
+                "vnetRouteAllEnabled": true,
+                "vnetPrivatePortsCount": 0,
+                "localMySqlEnabled": false,
+                "ipSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 1,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 1,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictionsUseMain": false,
+                "http20Enabled": false,
+                "minTlsVersion": "1.2",
+                "scmMinTlsVersion": "1.2",
+                "ftpsState": "AllAllowed",
+                "preWarmedInstanceCount": 0,
+                "functionAppScaleLimit": 0,
+                "functionsRuntimeScaleMonitoringEnabled": false,
+                "minimumElasticInstanceCount": 0,
+                "azureStorageAccounts": {}
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2021-03-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/101656004488522')]",
+            "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author": "Akinari Tsugo",
+                "deployer": "VSTS",
+                "message": "{\"type\":\"SlotSwap\",\"commitId\":\"b32f8aa57d8f7c39d84d8eab96b6701ad399a093\",\"buildId\":\"31\",\"releaseId\":\"10\",\"buildNumber\":\"20220623.1\",\"releaseName\":\"Release-7\",\"repoProvider\":\"TfsGit\",\"repoName\":\"at-cs-appsvc-demo-project\",\"collectionUrl\":\"https://dev.azure.com/akinaritsugomicrosoftcom/\",\"teamProject\":\"bb722d44-cb1b-42ea-bae4-5451e1d6ee4b\",\"sourceSlot\":\"stage\",\"targetSlot\":\"production\"}",
+                "start_time": "2022-06-23T17:14:53.8001246Z",
+                "end_time": "2022-06-23T17:14:53.8001246Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/hostNameBindings",
+            "apiVersion": "2021-03-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '.azurewebsites.net')]",
+            "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ],
+            "properties": {
+                "siteName": "at-devops-demo-cs-webapp-appsvc",
+                "hostNameType": "Verified"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/privateEndpointConnections",
+            "apiVersion": "2021-03-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '-pep-9170-50fff06c-cf1a-42c7-82f4-9699206e5f16')]",
+            "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ],
+            "properties": {
+                "privateLinkServiceConnectionState": {
+                    "status": "Approved",
+                    "actionsRequired": "None"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-22T05_12_59_0321829')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-22T06_12_59_2882748')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-22T07_12_59_5326845')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-22T08_12_59_7998568')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-22T09_13_00_0574191')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-22T10_13_00_3135205')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-22T11_13_00_5532037')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-22T12_13_00_8123741')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-22T13_13_01_0708463')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-22T14_13_01_3375349')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-22T15_13_01_5856763')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-22T16_13_02_3494261')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-22T17_13_02_6196519')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-22T18_13_02_8702116')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-22T19_13_03_1145051')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-22T20_13_03_3765809')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-22T21_13_03_6225740')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-22T22_13_03_8830275')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-22T23_13_04_1352251')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T00_13_04_3914964')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T01_13_04_6393650')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T02_13_04_9133661')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T03_13_05_1542084')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T04_13_05_4059323')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T05_13_05_6746952')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T06_13_05_9331973')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T07_13_06_1733469')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T08_13_06_4560736')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T09_13_06_6940458')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T10_13_06_9613638')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T11_13_07_2162629')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T12_13_07_4755933')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T13_13_07_7228011')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T14_13_07_9894809')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T15_13_08_2546026')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T16_13_08_5286752')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T17_13_08_7814868')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T18_13_09_0377775')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T19_13_09_2943095')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T20_13_09_5416276')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T21_13_09_7929942')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T22_13_10_1133101')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-23T23_13_10_3159490')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-24T00_13_10_5661478')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-24T01_13_10_8137357')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-24T02_13_14_1027087')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-24T03_13_11_3336260')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/2022-06-24T04_13_11_5713273')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Network/applicationGateways",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('applicationGateways_at_devops_demo_appgw_name')]",
+            "location": "japaneast",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'gateway-subnet')]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_at_devops_demo_appgw_ip_name'))]"
+            ],
+            "properties": {
+                "sku": {
+                    "name": "Standard_Small",
+                    "tier": "Standard",
+                    "capacity": 1
+                },
+                "gatewayIPConfigurations": [
+                    {
+                        "name": "appGatewayIpConfig",
+                        "properties": {
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'gateway-subnet')]"
+                            }
+                        }
+                    }
+                ],
+                "sslCertificates": [],
+                "authenticationCertificates": [],
+                "frontendIPConfigurations": [
+                    {
+                        "name": "appGwPublicFrontendIp",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_at_devops_demo_appgw_ip_name'))]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "appGwPrivateFrontendIp",
+                        "properties": {
+                            "privateIPAddress": "10.0.3.4",
+                            "privateIPAllocationMethod": "Static",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'gateway-subnet')]"
+                            }
+                        }
+                    }
+                ],
+                "frontendPorts": [
+                    {
+                        "name": "port_80",
+                        "properties": {
+                            "port": 80
+                        }
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "[concat(parameters('applicationGateways_at_devops_demo_appgw_name'), '-appsvc-pool')]",
+                        "properties": {
+                            "backendAddresses": [
+                                {
+                                    "fqdn": "at-devops-demo-cs-webapp-appsvc.azurewebsites.net"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "backendHttpSettingsCollection": [
+                    {
+                        "name": "https-backend-route",
+                        "properties": {
+                            "port": 443,
+                            "protocol": "Https",
+                            "cookieBasedAffinity": "Disabled",
+                            "pickHostNameFromBackendAddress": true,
+                            "affinityCookieName": "ApplicationGatewayAffinity",
+                            "requestTimeout": 20,
+                            "probe": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_at_devops_demo_appgw_name')), '/probes/appsvc-https-prove')]"
+                            }
+                        }
+                    }
+                ],
+                "httpListeners": [
+                    {
+                        "name": "http-listener",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_at_devops_demo_appgw_name')), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_at_devops_demo_appgw_name')), '/frontendPorts/port_80')]"
+                            },
+                            "protocol": "Http",
+                            "hostNames": [],
+                            "requireServerNameIndication": false
+                        }
+                    }
+                ],
+                "urlPathMaps": [],
+                "requestRoutingRules": [
+                    {
+                        "name": "route-all",
+                        "properties": {
+                            "ruleType": "Basic",
+                            "httpListener": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_at_devops_demo_appgw_name')), '/httpListeners/http-listener')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_at_devops_demo_appgw_name')), concat('/backendAddressPools/', parameters('applicationGateways_at_devops_demo_appgw_name'), '-appsvc-pool'))]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_at_devops_demo_appgw_name')), '/backendHttpSettingsCollection/https-backend-route')]"
+                            }
+                        }
+                    }
+                ],
+                "probes": [
+                    {
+                        "name": "appsvc-https-prove",
+                        "properties": {
+                            "protocol": "Https",
+                            "host": "at-devops-demo-cs-webapp-appsvc.azurewebsites.net",
+                            "path": "/",
+                            "interval": 30,
+                            "timeout": 30,
+                            "unhealthyThreshold": 3,
+                            "pickHostNameFromBackendHttpSettings": false,
+                            "minServers": 0,
+                            "match": {
+                                "statusCodes": [
+                                    "200-399"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "rewriteRuleSets": [],
+                "redirectConfigurations": [],
+                "enableHttp2": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('networkInterfaces_at_devops_demo_agent_nic_name')]",
+            "location": "japaneast",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_at_devops_demo_agent_vm_ip_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'business-subnet')]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAddress": "10.0.2.4",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_at_devops_demo_agent_vm_ip_name'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'business-subnet')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            "apiVersion": "2018-09-01",
+            "name": "[concat(parameters('privateDnsZones_privatelink_azurewebsites_net_name'), '/ad7dd7b6a5e41')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_privatelink_azurewebsites_net_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_at_devops_demo_main_vnet_name'))]"
+            ],
+            "properties": {
+                "registrationEnabled": false,
+                "virtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_at_devops_demo_main_vnet_name'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('privateEndpoints_at_devops_demo_cs_webapp_appsvc_pep_name')]",
+            "location": "japaneast",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'business-subnet')]"
+            ],
+            "properties": {
+                "privateLinkServiceConnections": [
+                    {
+                        "name": "[concat(parameters('privateEndpoints_at_devops_demo_cs_webapp_appsvc_pep_name'), '-9170')]",
+                        "properties": {
+                            "privateLinkServiceId": "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]",
+                            "groupIds": [
+                                "sites"
+                            ],
+                            "privateLinkServiceConnectionState": {
+                                "status": "Approved",
+                                "actionsRequired": "None"
+                            }
+                        }
+                    }
+                ],
+                "manualPrivateLinkServiceConnections": [],
+                "subnet": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'business-subnet')]"
+                },
+                "customDnsConfigs": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('privateEndpoints_at_devops_demo_cs_webapp_appsvc_stage_pep_name')]",
+            "location": "japaneast",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'business-subnet')]"
+            ],
+            "properties": {
+                "privateLinkServiceConnections": [
+                    {
+                        "name": "[concat(parameters('privateEndpoints_at_devops_demo_cs_webapp_appsvc_stage_pep_name'), '-8c1d')]",
+                        "properties": {
+                            "privateLinkServiceId": "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]",
+                            "groupIds": [
+                                "sites-stage"
+                            ],
+                            "privateLinkServiceConnectionState": {
+                                "status": "Approved",
+                                "actionsRequired": "None"
+                            }
+                        }
+                    }
+                ],
+                "manualPrivateLinkServiceConnections": [],
+                "subnet": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'business-subnet')]"
+                },
+                "customDnsConfigs": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('privateEndpoints_at_devops_demo_cs_webapp_appsvc_pep_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpoints_at_devops_demo_cs_webapp_appsvc_pep_name'))]",
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_privatelink_azurewebsites_net_name'))]"
+            ],
+            "properties": {
+                "privateDnsZoneConfigs": [
+                    {
+                        "name": "privatelink-azurewebsites-net",
+                        "properties": {
+                            "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_privatelink_azurewebsites_net_name'))]"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('privateEndpoints_at_devops_demo_cs_webapp_appsvc_stage_pep_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpoints_at_devops_demo_cs_webapp_appsvc_stage_pep_name'))]",
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_privatelink_azurewebsites_net_name'))]"
+            ],
+            "properties": {
+                "privateDnsZoneConfigs": [
+                    {
+                        "name": "privatelink-azurewebsites-net",
+                        "properties": {
+                            "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_privatelink_azurewebsites_net_name'))]"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('virtualNetworks_at_devops_demo_main_vnet_name'), '/AzureBastionSubnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_at_devops_demo_main_vnet_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.0.0.0/24",
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name'))]"
+                },
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Enabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('virtualNetworks_at_devops_demo_main_vnet_name'), '/business-subnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_at_devops_demo_main_vnet_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_business_nsg_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.0.2.0/24",
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_business_nsg_name'))]"
+                },
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('virtualNetworks_at_devops_demo_main_vnet_name'), '/cluster-subnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_at_devops_demo_main_vnet_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_cluster_nsg_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.1.0.0/16",
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_cluster_nsg_name'))]"
+                },
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Enabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('virtualNetworks_at_devops_demo_main_vnet_name'), '/data-subnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_at_devops_demo_main_vnet_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_data_nsg_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.0.1.0/24",
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_data_nsg_name'))]"
+                },
+                "delegations": [
+                    {
+                        "name": "delegation",
+                        "properties": {
+                            "serviceName": "Microsoft.Web/serverfarms"
+                        }
+                    }
+                ],
+                "privateEndpointNetworkPolicies": "Enabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2021-03-01",
+            "name": "[parameters('sites_at_devops_demo_cs_webapp_appsvc_name')]",
+            "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_at_devops_demo_asp_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'data-subnet')]"
+            ],
+            "kind": "app",
+            "properties": {
+                "enabled": true,
+                "hostNameSslStates": [
+                    {
+                        "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Standard"
+                    },
+                    {
+                        "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '.scm.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Repository"
+                    }
+                ],
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_at_devops_demo_asp_name'))]",
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "siteConfig": {
+                    "numberOfWorkers": 1,
+                    "acrUseManagedIdentityCreds": false,
+                    "alwaysOn": true,
+                    "http20Enabled": false,
+                    "functionAppScaleLimit": 0,
+                    "minimumElasticInstanceCount": 0
+                },
+                "scmSiteAlsoStopped": false,
+                "clientAffinityEnabled": true,
+                "clientCertEnabled": false,
+                "clientCertMode": "Required",
+                "hostNamesDisabled": false,
+                "customDomainVerificationId": "BA63A2B7FC044A1DBCDA691CB98BCB6A1967EE967FE79BB0049B5973BEEC7053",
+                "containerSize": 0,
+                "dailyMemoryTimeQuota": 0,
+                "httpsOnly": true,
+                "redundancyMode": "None",
+                "storageAccountRequired": false,
+                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'data-subnet')]",
+                "keyVaultReferenceIdentity": "SystemAssigned"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/basicPublishingCredentialsPolicies",
+            "apiVersion": "2021-03-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/ftp')]",
+            "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ],
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/basicPublishingCredentialsPolicies",
+            "apiVersion": "2021-03-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/scm')]",
+            "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ],
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/config",
+            "apiVersion": "2021-03-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/web')]",
+            "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ],
+            "properties": {
+                "numberOfWorkers": 1,
+                "defaultDocuments": [
+                    "Default.htm",
+                    "Default.html",
+                    "Default.asp",
+                    "index.htm",
+                    "index.html",
+                    "iisstart.htm",
+                    "default.aspx",
+                    "index.php",
+                    "hostingstart.html"
+                ],
+                "netFrameworkVersion": "v6.0",
+                "requestTracingEnabled": false,
+                "remoteDebuggingEnabled": false,
+                "remoteDebuggingVersion": "VS2019",
+                "httpLoggingEnabled": false,
+                "acrUseManagedIdentityCreds": false,
+                "logsDirectorySizeLimit": 35,
+                "detailedErrorLoggingEnabled": false,
+                "publishingUsername": "$at-devops-demo-cs-webapp-appsvc__stage",
+                "scmType": "VSTSRM",
+                "use32BitWorkerProcess": true,
+                "webSocketsEnabled": false,
+                "alwaysOn": true,
+                "managedPipelineMode": "Integrated",
+                "virtualApplications": [
+                    {
+                        "virtualPath": "/",
+                        "physicalPath": "site\\wwwroot",
+                        "preloadEnabled": true
+                    }
+                ],
+                "loadBalancing": "LeastRequests",
+                "experiments": {
+                    "rampUpRules": []
+                },
+                "autoHealEnabled": false,
+                "vnetName": "de02a3dd-b5bd-44f5-ba93-b2dd0d4e256c_data-subnet",
+                "vnetRouteAllEnabled": true,
+                "vnetPrivatePortsCount": 0,
+                "localMySqlEnabled": false,
+                "ipSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 1,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 1,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictionsUseMain": false,
+                "http20Enabled": false,
+                "minTlsVersion": "1.2",
+                "scmMinTlsVersion": "1.2",
+                "ftpsState": "AllAllowed",
+                "preWarmedInstanceCount": 0,
+                "functionAppScaleLimit": 0,
+                "functionsRuntimeScaleMonitoringEnabled": false,
+                "minimumElasticInstanceCount": 0,
+                "azureStorageAccounts": {}
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/deployments",
+            "apiVersion": "2021-03-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/101656004488522')]",
+            "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author": "Akinari Tsugo",
+                "deployer": "VSTS",
+                "message": "{\"type\":\"SlotSwap\",\"commitId\":\"b32f8aa57d8f7c39d84d8eab96b6701ad399a093\",\"buildId\":\"31\",\"releaseId\":\"10\",\"buildNumber\":\"20220623.1\",\"releaseName\":\"Release-7\",\"repoProvider\":\"TfsGit\",\"repoName\":\"at-cs-appsvc-demo-project\",\"collectionUrl\":\"https://dev.azure.com/akinaritsugomicrosoftcom/\",\"teamProject\":\"bb722d44-cb1b-42ea-bae4-5451e1d6ee4b\",\"sourceSlot\":\"stage\",\"targetSlot\":\"production\"}",
+                "start_time": "2022-06-23T17:14:52.7249053Z",
+                "end_time": "2022-06-23T17:14:52.7249053Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/deployments",
+            "apiVersion": "2021-03-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/11655876519234')]",
+            "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author": "Akinari Tsugo",
+                "deployer": "VSTS",
+                "message": "{\"type\":\"Deployment\",\"commitId\":\"0a4cd8ad22d9ca8c9ebe0566b4b8f8ed124d8156\",\"buildId\":\"28\",\"releaseId\":\"1\",\"buildNumber\":\"20220622.2\",\"releaseName\":\"Release-1\",\"repoProvider\":\"TfsGit\",\"repoName\":\"at-devops-demo-cs-webapp-repo\",\"collectionUrl\":\"https://dev.azure.com/akinaritsugomicrosoftcom/\",\"teamProject\":\"e57c054b-219a-4da8-86d4-c25eef61dfd1\",\"buildProjectUrl\":\"https://dev.azure.com/akinaritsugomicrosoftcom/e57c054b-219a-4da8-86d4-c25eef61dfd1\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"at-devops-demo-project\",\"slotName\":\"production\"}",
+                "start_time": "2022-06-22T05:42:00.4310153Z",
+                "end_time": "2022-06-22T05:42:00.4310153Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/deployments",
+            "apiVersion": "2021-03-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/21655877240378')]",
+            "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author": "Akinari Tsugo",
+                "deployer": "VSTS",
+                "message": "{\"type\":\"Deployment\",\"commitId\":\"3652da6649834cde1038c6b12d2ee20abeb6666b\",\"buildId\":\"29\",\"releaseId\":\"2\",\"buildNumber\":\"20220622.3\",\"releaseName\":\"Release-2\",\"repoProvider\":\"TfsGit\",\"repoName\":\"at-devops-demo-cs-webapp-repo\",\"collectionUrl\":\"https://dev.azure.com/akinaritsugomicrosoftcom/\",\"teamProject\":\"e57c054b-219a-4da8-86d4-c25eef61dfd1\",\"buildProjectUrl\":\"https://dev.azure.com/akinaritsugomicrosoftcom/e57c054b-219a-4da8-86d4-c25eef61dfd1\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"at-devops-demo-project\",\"slotName\":\"production\"}",
+                "start_time": "2022-06-22T05:54:00.7246364Z",
+                "end_time": "2022-06-22T05:54:00.7246364Z",
+                "active": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/hostNameBindings",
+            "apiVersion": "2021-03-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '-stage.azurewebsites.net')]",
+            "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ],
+            "properties": {
+                "siteName": "at-devops-demo-cs-webapp-appsvc(stage)",
+                "hostNameType": "Verified"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/privateEndpointConnections",
+            "apiVersion": "2021-03-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '-stage-pep-8c1d-12221ff8-3b22-4e87-8cbf-fd596e9886f5')]",
+            "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ],
+            "properties": {
+                "privateLinkServiceConnectionState": {
+                    "status": "Approved",
+                    "actionsRequired": "None"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/2022-06-23T16_13_08_5286752')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/2022-06-23T17_13_08_7814868')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/2022-06-23T18_13_09_0377775')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/2022-06-23T19_13_09_2943095')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/2022-06-23T20_13_09_5416276')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/2022-06-23T21_13_09_7929942')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/2022-06-23T22_13_10_1133101')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/2022-06-23T23_13_10_3159490')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/2022-06-24T00_13_10_5661478')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/2022-06-24T01_13_10_8137357')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/2022-06-24T02_13_14_1027087')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/2022-06-24T03_13_11_3336260')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/2022-06-24T04_13_11_5713273')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/virtualNetworkConnections",
+            "apiVersion": "2021-03-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/de02a3dd-b5bd-44f5-ba93-b2dd0d4e256c_data-subnet')]",
+            "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'data-subnet')]"
+            ],
+            "properties": {
+                "vnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'data-subnet')]",
+                "isSwift": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots",
+            "apiVersion": "2021-03-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage')]",
+            "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]",
+                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_at_devops_demo_asp_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'data-subnet')]"
+            ],
+            "kind": "app",
+            "properties": {
+                "enabled": true,
+                "hostNameSslStates": [
+                    {
+                        "name": "at-devops-demo-cs-webapp-appsvc-stage.azurewebsites.net",
+                        "sslState": "Disabled",
+                        "hostType": "Standard"
+                    },
+                    {
+                        "name": "at-devops-demo-cs-webapp-appsvc-stage.scm.azurewebsites.net",
+                        "sslState": "Disabled",
+                        "hostType": "Repository"
+                    }
+                ],
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_at_devops_demo_asp_name'))]",
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "siteConfig": {
+                    "numberOfWorkers": 1,
+                    "acrUseManagedIdentityCreds": false,
+                    "alwaysOn": true,
+                    "http20Enabled": false,
+                    "functionAppScaleLimit": 0,
+                    "minimumElasticInstanceCount": 0
+                },
+                "scmSiteAlsoStopped": false,
+                "clientAffinityEnabled": true,
+                "clientCertEnabled": false,
+                "clientCertMode": "Required",
+                "hostNamesDisabled": false,
+                "customDomainVerificationId": "BA63A2B7FC044A1DBCDA691CB98BCB6A1967EE967FE79BB0049B5973BEEC7053",
+                "containerSize": 0,
+                "dailyMemoryTimeQuota": 0,
+                "httpsOnly": true,
+                "redundancyMode": "None",
+                "storageAccountRequired": false,
+                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'data-subnet')]",
+                "keyVaultReferenceIdentity": "SystemAssigned"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/virtualNetworkConnections",
+            "apiVersion": "2021-03-01",
+            "name": "[concat(parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), '/stage/de02a3dd-b5bd-44f5-ba93-b2dd0d4e256c_data-subnet')]",
+            "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'), 'stage')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_at_devops_demo_cs_webapp_appsvc_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'data-subnet')]"
+            ],
+            "properties": {
+                "vnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_at_devops_demo_main_vnet_name'), 'data-subnet')]",
+                "isSwift": true
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('virtualNetworks_at_devops_demo_main_vnet_name')]",
+            "location": "japaneast",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_cluster_nsg_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_business_nsg_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_data_nsg_name'))]"
+            ],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/8"
+                    ]
+                },
+                "dhcpOptions": {
+                    "dnsServers": []
+                },
+                "subnets": [
+                    {
+                        "name": "cluster-subnet",
+                        "properties": {
+                            "addressPrefix": "10.1.0.0/16",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_cluster_nsg_name'))]"
+                            },
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
+                    },
+                    {
+                        "name": "AzureBastionSubnet",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_bastion_nsg_name'))]"
+                            },
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
+                    },
+                    {
+                        "name": "AzureFirewallSubnet",
+                        "properties": {
+                            "addressPrefix": "10.0.4.0/26",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
+                    },
+                    {
+                        "name": "business-subnet",
+                        "properties": {
+                            "addressPrefix": "10.0.2.0/24",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_business_nsg_name'))]"
+                            },
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
+                    },
+                    {
+                        "name": "data-subnet",
+                        "properties": {
+                            "addressPrefix": "10.0.1.0/24",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_at_devops_demo_data_nsg_name'))]"
+                            },
+                            "delegations": [
+                                {
+                                    "name": "delegation",
+                                    "properties": {
+                                        "serviceName": "Microsoft.Web/serverfarms"
+                                    }
+                                }
+                            ],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
+                    },
+                    {
+                        "name": "gateway-subnet",
+                        "properties": {
+                            "addressPrefix": "10.0.3.0/24",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
+                    }
+                ],
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false
+            }
+        }
+    ]
+}

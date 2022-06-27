@@ -1,0 +1,403 @@
+{
+  "options": [
+    {
+      "enabled": true,
+      "definition": {
+        "id": "5d58cc01-7c75-450c-be18-a388ddb129ec"
+      },
+      "inputs": {
+        "branchFilters": "[\"+refs/heads/*\"]",
+        "additionalFields": "{}"
+      }
+    },
+    {
+      "enabled": false,
+      "definition": {
+        "id": "a9db38f9-9fdc-478c-b0f9-464221e58316"
+      },
+      "inputs": {
+        "workItemType": "Task",
+        "assignToRequestor": "true",
+        "additionalFields": "{}"
+      }
+    }
+  ],
+  "triggers": [
+    {
+      "branchFilters": [
+        "+refs/heads/master"
+      ],
+      "pathFilters": [],
+      "batchChanges": false,
+      "maxConcurrentBuildsPerBranch": 1,
+      "pollingInterval": 0,
+      "triggerType": 2
+    }
+  ],
+  "variables": {
+    "BuildConfiguration": {
+      "value": "release",
+      "allowOverride": true
+    },
+    "BuildPlatform": {
+      "value": "any cpu",
+      "allowOverride": true
+    },
+    "system.debug": {
+      "value": "false",
+      "allowOverride": true
+    }
+  },
+  "properties": {},
+  "tags": [],
+  "_links": {
+    "self": {
+      "href": "https://dev.azure.com/akinaritsugomicrosoftcom/bb722d44-cb1b-42ea-bae4-5451e1d6ee4b/_apis/build/Definitions/7?revision=6"
+    },
+    "web": {
+      "href": "https://dev.azure.com/akinaritsugomicrosoftcom/bb722d44-cb1b-42ea-bae4-5451e1d6ee4b/_build/definition?definitionId=7"
+    },
+    "editor": {
+      "href": "https://dev.azure.com/akinaritsugomicrosoftcom/bb722d44-cb1b-42ea-bae4-5451e1d6ee4b/_build/designer?id=7&_a=edit-build-definition"
+    },
+    "badge": {
+      "href": "https://dev.azure.com/akinaritsugomicrosoftcom/bb722d44-cb1b-42ea-bae4-5451e1d6ee4b/_apis/build/status/7"
+    }
+  },
+  "buildNumberFormat": "$(date:yyyyMMdd)$(rev:.r)",
+  "jobAuthorizationScope": 1,
+  "jobTimeoutInMinutes": 60,
+  "jobCancelTimeoutInMinutes": 5,
+  "process": {
+    "phases": [
+      {
+        "steps": [
+          {
+            "environment": {},
+            "enabled": true,
+            "continueOnError": false,
+            "alwaysRun": false,
+            "displayName": "Use NuGet 6.2.0",
+            "timeoutInMinutes": 0,
+            "retryCountOnTaskFailure": 0,
+            "condition": "succeeded()",
+            "task": {
+              "id": "2c65196a-54fd-4a02-9be8-d9d1837b7c5d",
+              "versionSpec": "0.*",
+              "definitionType": "task"
+            },
+            "inputs": {
+              "versionSpec": "6.2.0",
+              "checkLatest": "false"
+            }
+          },
+          {
+            "environment": {},
+            "enabled": true,
+            "continueOnError": false,
+            "alwaysRun": false,
+            "displayName": "NuGet restore",
+            "timeoutInMinutes": 0,
+            "retryCountOnTaskFailure": 0,
+            "condition": "succeeded()",
+            "task": {
+              "id": "333b11bd-d341-40d9-afcf-b32d5ce6f23b",
+              "versionSpec": "2.*",
+              "definitionType": "task"
+            },
+            "inputs": {
+              "command": "restore",
+              "solution": "$(Parameters.solution)",
+              "selectOrConfig": "select",
+              "feedRestore": "",
+              "includeNuGetOrg": "true",
+              "nugetConfigPath": "",
+              "externalEndpoints": "",
+              "noCache": "false",
+              "disableParallelProcessing": "false",
+              "packagesDirectory": "",
+              "verbosityRestore": "Detailed",
+              "searchPatternPush": "$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg",
+              "nuGetFeedType": "internal",
+              "feedPublish": "",
+              "publishPackageMetadata": "true",
+              "allowPackageConflicts": "false",
+              "externalEndpoint": "",
+              "verbosityPush": "Detailed",
+              "searchPatternPack": "**/*.csproj",
+              "configurationToPack": "$(BuildConfiguration)",
+              "outputDir": "$(Build.ArtifactStagingDirectory)",
+              "versioningScheme": "off",
+              "includeReferencedProjects": "false",
+              "versionEnvVar": "",
+              "requestedMajorVersion": "1",
+              "requestedMinorVersion": "0",
+              "requestedPatchVersion": "0",
+              "packTimezone": "utc",
+              "includeSymbols": "false",
+              "toolPackage": "false",
+              "buildProperties": "",
+              "basePath": "",
+              "verbosityPack": "Detailed",
+              "arguments": ""
+            }
+          },
+          {
+            "environment": {},
+            "enabled": true,
+            "continueOnError": false,
+            "alwaysRun": false,
+            "displayName": "Build solution",
+            "timeoutInMinutes": 0,
+            "retryCountOnTaskFailure": 0,
+            "condition": "succeeded()",
+            "task": {
+              "id": "71a9a2d3-a98a-4caa-96ab-affca411ecda",
+              "versionSpec": "1.*",
+              "definitionType": "task"
+            },
+            "inputs": {
+              "solution": "$(Parameters.solution)",
+              "vsVersion": "latest",
+              "msbuildArgs": "/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation=\"$(build.artifactstagingdirectory)\\\\\"",
+              "platform": "$(BuildPlatform)",
+              "configuration": "$(BuildConfiguration)",
+              "clean": "false",
+              "maximumCpuCount": "false",
+              "restoreNugetPackages": "false",
+              "msbuildArchitecture": "x86",
+              "logProjectEvents": "true",
+              "createLogFile": "false",
+              "logFileVerbosity": "normal",
+              "enableDefaultLogger": "true",
+              "customVersion": ""
+            }
+          },
+          {
+            "environment": {},
+            "enabled": true,
+            "continueOnError": false,
+            "alwaysRun": false,
+            "displayName": "Test Assemblies",
+            "timeoutInMinutes": 0,
+            "retryCountOnTaskFailure": 0,
+            "condition": "succeeded()",
+            "task": {
+              "id": "ef087383-ee5e-42c7-9a53-ab56c98420f9",
+              "versionSpec": "2.*",
+              "definitionType": "task"
+            },
+            "inputs": {
+              "testSelector": "testAssemblies",
+              "testAssemblyVer2": "**\\$(BuildConfiguration)\\*test*.dll\n!**\\obj\\**",
+              "testPlan": "",
+              "testSuite": "",
+              "testConfiguration": "",
+              "tcmTestRun": "$(test.RunId)",
+              "searchFolder": "$(System.DefaultWorkingDirectory)",
+              "resultsFolder": "$(Agent.TempDirectory)\\TestResults",
+              "testFiltercriteria": "",
+              "runOnlyImpactedTests": "False",
+              "runAllTestsAfterXBuilds": "50",
+              "uiTests": "false",
+              "vstestLocationMethod": "version",
+              "vsTestVersion": "latest",
+              "vstestLocation": "",
+              "runSettingsFile": "",
+              "overrideTestrunParameters": "",
+              "pathtoCustomTestAdapters": "",
+              "runInParallel": "False",
+              "runTestsInIsolation": "False",
+              "codeCoverageEnabled": "False",
+              "otherConsoleOptions": "",
+              "distributionBatchType": "basedOnTestCases",
+              "batchingBasedOnAgentsOption": "autoBatchSize",
+              "customBatchSizeValue": "10",
+              "batchingBasedOnExecutionTimeOption": "autoBatchSize",
+              "customRunTimePerBatchValue": "60",
+              "dontDistribute": "False",
+              "testRunTitle": "",
+              "platform": "$(BuildPlatform)",
+              "configuration": "$(BuildConfiguration)",
+              "publishRunAttachments": "true",
+              "failOnMinTestsNotRun": "False",
+              "minimumExpectedTests": "1",
+              "diagnosticsEnabled": "false",
+              "collectDumpOn": "onAbortOnly",
+              "rerunFailedTests": "False",
+              "rerunType": "basedOnTestFailurePercentage",
+              "rerunFailedThreshold": "30",
+              "rerunFailedTestCasesMaxLimit": "5",
+              "rerunMaxAttempts": "3"
+            }
+          },
+          {
+            "environment": {},
+            "enabled": true,
+            "continueOnError": true,
+            "alwaysRun": false,
+            "displayName": "Publish symbols path",
+            "timeoutInMinutes": 0,
+            "retryCountOnTaskFailure": 0,
+            "condition": "succeeded()",
+            "task": {
+              "id": "0675668a-7bba-4ccb-901d-5ad6554ca653",
+              "versionSpec": "2.*",
+              "definitionType": "task"
+            },
+            "inputs": {
+              "SymbolsFolder": "$(Build.SourcesDirectory)",
+              "SearchPattern": "**\\bin\\**\\*.pdb",
+              "IndexSources": "true",
+              "PublishSymbols": "false",
+              "SymbolServerType": "TeamServices",
+              "SymbolsPath": "",
+              "CompressSymbols": "false",
+              "SymbolExpirationInDays": "36530",
+              "IndexableFileFormats": "Default",
+              "DetailedLog": "true",
+              "TreatNotIndexedAsWarning": "false",
+              "UseNetCoreClientTool": "false",
+              "SymbolsMaximumWaitTime": "",
+              "SymbolsProduct": "",
+              "SymbolsVersion": "",
+              "SymbolsArtifactName": "Symbols_$(BuildConfiguration)"
+            }
+          },
+          {
+            "environment": {},
+            "enabled": true,
+            "continueOnError": false,
+            "alwaysRun": false,
+            "displayName": "Publish Pipeline Artifact",
+            "timeoutInMinutes": 0,
+            "retryCountOnTaskFailure": 0,
+            "condition": "succeeded()",
+            "task": {
+              "id": "ecdc45f6-832d-4ad9-b52b-ee49e94659be",
+              "versionSpec": "1.*",
+              "definitionType": "task"
+            },
+            "inputs": {
+              "path": "$(build.artifactstagingdirectory)",
+              "artifactName": "$(Parameters.artifactName)",
+              "artifactType": "pipeline",
+              "fileSharePath": "",
+              "parallel": "false",
+              "parallelCount": "8",
+              "properties": ""
+            }
+          }
+        ],
+        "name": "Agent job 1",
+        "refName": "Job_1",
+        "condition": "succeeded()",
+        "target": {
+          "executionOptions": {
+            "type": 0
+          },
+          "allowScriptsAuthAccessOption": false,
+          "type": 1
+        },
+        "jobAuthorizationScope": 1
+      }
+    ],
+    "type": 1
+  },
+  "repository": {
+    "properties": {
+      "cleanOptions": "0",
+      "labelSources": "0",
+      "labelSourcesFormat": "$(build.buildNumber)",
+      "reportBuildStatus": "true",
+      "gitLfsSupport": "false",
+      "skipSyncSource": "false",
+      "checkoutNestedSubmodules": "false",
+      "fetchDepth": "0"
+    },
+    "id": "c3d0519a-5649-4845-8cc4-5e6246fbda14",
+    "type": "TfsGit",
+    "name": "YOUR-PROJECT-NAME",
+    "url": "https://dev.azure.com/akinaritsugomicrosoftcom/YOUR-PROJECT-NAME/_git/YOUR-PROJECT-NAME",
+    "defaultBranch": "refs/heads/master",
+    "clean": "false",
+    "checkoutSubmodules": false
+  },
+  "processParameters": {
+    "inputs": [
+      {
+        "aliases": [],
+        "options": {},
+        "properties": {},
+        "name": "solution",
+        "label": "Path to solution or packages.config",
+        "defaultValue": "**\\*.sln",
+        "required": true,
+        "type": "filePath",
+        "helpMarkDown": "The path to the Visual Studio solution file or NuGet packages.config",
+        "visibleRule": "",
+        "groupName": ""
+      },
+      {
+        "aliases": [],
+        "options": {},
+        "properties": {},
+        "name": "ArtifactName",
+        "label": "Artifact Name",
+        "defaultValue": "drop",
+        "required": true,
+        "type": "string",
+        "helpMarkDown": "The name of the artifact to create.",
+        "visibleRule": "",
+        "groupName": ""
+      }
+    ]
+  },
+  "quality": 1,
+  "authoredBy": {
+    "displayName": "Akinari Tsugo",
+    "url": "https://spsprodsea1.vssps.visualstudio.com/A5fd75742-d980-43bd-bc81-a59d7b4e9bc2/_apis/Identities/7ca5504b-501b-68fa-8c2b-c4d8e1afea6b",
+    "_links": {
+      "avatar": {
+        "href": "https://dev.azure.com/akinaritsugomicrosoftcom/_apis/GraphProfile/MemberAvatars/aad.N2NhNTUwNGItNTAxYi03OGZhLThjMmItYzRkOGUxYWZlYTZi"
+      }
+    },
+    "id": "7ca5504b-501b-68fa-8c2b-c4d8e1afea6b",
+    "uniqueName": "akinaritsugo@microsoft.com",
+    "imageUrl": "https://dev.azure.com/akinaritsugomicrosoftcom/_apis/GraphProfile/MemberAvatars/aad.N2NhNTUwNGItNTAxYi03OGZhLThjMmItYzRkOGUxYWZlYTZi",
+    "descriptor": "aad.N2NhNTUwNGItNTAxYi03OGZhLThjMmItYzRkOGUxYWZlYTZi"
+  },
+  "drafts": [],
+  "queue": {
+    "_links": {
+      "self": {
+        "href": "https://dev.azure.com/akinaritsugomicrosoftcom/_apis/build/Queues/66"
+      }
+    },
+    "id": 66,
+    "name": "Self Hosted Pool",
+    "url": "https://dev.azure.com/akinaritsugomicrosoftcom/_apis/build/Queues/66",
+    "pool": {
+      "id": 11,
+      "name": "Self Hosted Pool"
+    }
+  },
+  "id": 7,
+  "name": "YOUR-PROJECT-NAME-ASP.NET-CI",
+  "url": "https://dev.azure.com/akinaritsugomicrosoftcom/bb722d44-cb1b-42ea-bae4-5451e1d6ee4b/_apis/build/Definitions/7?revision=6",
+  "uri": "vstfs:///Build/Definition/7",
+  "path": "\\",
+  "type": 2,
+  "queueStatus": 0,
+  "revision": 6,
+  "createdDate": "2022-06-23T16:32:30.427Z",
+  "project": {
+    "id": "bb722d44-cb1b-42ea-bae4-5451e1d6ee4b",
+    "name": "YOUR-PROJECT-NAME",
+    "url": "https://dev.azure.com/akinaritsugomicrosoftcom/_apis/projects/bb722d44-cb1b-42ea-bae4-5451e1d6ee4b",
+    "state": 1,
+    "revision": 52,
+    "visibility": 0,
+    "lastUpdateTime": "2022-06-13T02:02:16.267Z"
+  }
+}
