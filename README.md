@@ -239,6 +239,14 @@ VMにビルドツールをインストール
             |項目|値|
             |---|---|
             |Agent pool| `Default` |
+        1. Swap Slots
+            |項目|値|
+            |---|---|
+            |Azure subscription| 作成済みの service connection |
+            |App service name| インフラ構築で作成された App Service |
+            |Resource group| インフラ展開先のリソースグループ |
+            |Source Slot| `staging` |
+
     1. 「Save」で保存
 1. 最初に作ったダミーのパイプラインは削除
 
@@ -251,5 +259,5 @@ VMにビルドツールをインストール
 1. 自動ビルドされてステージ環境へリリースされる
 1. エージェントVMからアクセスして修正確認
 1. メールが届いているので確認、承認を実施
-1. 
+1. 本番と検証がスイッチして本番にリリースされる
 
