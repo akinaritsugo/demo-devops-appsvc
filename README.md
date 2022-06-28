@@ -9,13 +9,12 @@ Azure DevOps Demo
 
 目次
 
-1. Azure上のインフラ準備
-1. Azure DevOps の準備
-    1. 組織作成
-    1. プロジェクト作成
-    1. Azureへの接続設定
-1. Azure VMにエージェントの導入
-1. Azure DevOps のパイプライン作成
+1. [Azure上のインフラ準備](#azure上のインフラ準備)
+1. [Azure DevOps の準備](#azure-devops-の準備)
+1. [Azure DevOps に connection 設定](#azure-devops-に-connection-設定)
+1. [Azure DevOps エージェントの作成](#azure-devops-エージェントの作成)
+1. [Azure DevOps のパイプライン作成](#azure-devops-のパイプライン作成)
+1. [動作確認](#動作確認)
 
 
 ### Azure上のインフラ準備
@@ -172,7 +171,7 @@ VMにビルドツールをインストール
 1. インストール後、再起動
 
 
-### パイプラインの作成
+### Azure DevOps のパイプライン作成
 
 ビルドパイプラインの作成
 
