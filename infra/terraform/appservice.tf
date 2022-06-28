@@ -61,10 +61,39 @@ resource "azurerm_private_dns_zone_virtual_network_link" "webapp" {
   virtual_network_id    = azurerm_virtual_network.vnet.id
 }
 
-# App Service (Production)
+# App Service (Staging)
 resource "azurerm_windows_web_app_slot" "webapp" {
   name           = "staging"
   app_service_id = azurerm_windows_web_app.webapp.id
 
   site_config {}
 }
+
+# VNet統合(AppService -> VNet)
+resource "azurerm_app_service_slot_virtual_network_swift_connection" "stage" {
+  app_service_id = azurerm_windows_web_app.webapp.id
+  slot_name      = azurerm_windows_web_app_slot.webapp.name
+  subnet_id      = azurerm_subnet.data.id
+}
+
+# Private Endpoint(VNet -> AppService)
+resource "azurerm_private_endpoint" "stage" {
+  name                = "${var.prj}-${var.env}-webapp-stg-as-pep"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  subnet_id           = azurerm_subnet.business.id
+
+  private_dns_zone_group {
+    name                 = "${var.prj}-${var.env}-webapp-stg-as-dnszonegroup"
+    private_dns_zone_ids = [azurerm_private_dns_zone.webapp.id]
+  }
+
+  private_service_connection {
+    name                           = "${var.prj}-${var.env}-webapp-stg-as-psc"
+    private_connection_resource_id = azurerm_windows_web_app.webapp.id
+    subresource_names              = ["sites-${azurerm_windows_web_app_slot.webapp.name}"]
+    is_manual_connection           = false
+  }
+}
+
+
